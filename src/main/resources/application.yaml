@@ -1,0 +1,44 @@
+server:
+  port: 9081  
+  access-log:
+    format: "%h %l %u %t %r %s %b %{Referer}i %D %{User-agent}i %{ECID-Context}i "
+  #executor-service:
+  #  core-pool-size: 30
+  #  max-pool-size: 40
+  #  thread-name-prefix: "pnvs-"
+web:
+  debug: true
+  page-size: 15
+user:
+  home: C:/Users/app
+greeting: helloGreeting  
+version: v2
+tracing:
+    service: "helidon-full-http"
+    protocol: "udp"     # JAEGER_ENDPOINT (if not udp, http is expected and endpoint is filled)
+    host: 10.229.134.196   # JAEGER_ENDPOINT
+    port: 5775           # JAEGER_ENDPOINT 14240
+    path: "/api/traces/mine"   # JAEGER_ENDPOINT
+    #token: "token"        # JAEGER_AUTH_TOKEN
+    # Either token or username/password
+    #username:  "user"     # JAEGER_USER
+    #password: "pass"      # JAEGER_PASSWORD
+    propagation: "jaeger" # JAEGER_PROPAGATION either "jaeger" or "b3"
+ #   log-spans: true      # JAEGER_REPORTER_LOG_SPANS
+#    max-queue-size: 42    # JAEGER_REPORTER_MAX_QUEUE_SIZE
+#    flush-interval-ms: 1 # JAEGER_REPORTER_FLUSH_INTERVAL
+    sampler-type: "const"# JAEGER_SAMPLER_TYPE (https://www.jaegertracing.io/docs/latest/sampling/#client-sampling-configuration)
+    sampler-param: 1    # JAEGER_SAMPLER_PARAM (number)
+#    sampler-manager: "localhost:47877" # JAEGER_SAMPLER_MANAGER_HOST_PORT
+    tags:
+      tag1: "tag1-value"  # JAEGER_TAGS
+      tag2: "tag2-value"  # JAEGER_TAGS
+    boolean-tags:
+      tag3: true          # JAEGER_TAGS
+      tag4: false         # JAEGER_TAGS
+    int-tags:
+      tag5: 145           # JAEGER_TAGS
+      tag6: 741           # JAEGER_TAGS
+   # web-server:
+   #   spans:
+   #     - name: "HTTP Request"  
