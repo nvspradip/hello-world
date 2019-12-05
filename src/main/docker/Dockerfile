@@ -1,10 +1,10 @@
-FROM openjdk:8-jre-slim
 FROM oraclelinux:7-slim
+FROM openjdk:8-jre-slim
 
 ENV http_proxy=http://www-proxy.us.oracle.com:80
 ENV https_proxy=http://www-proxy.us.oracle.com:80
 ENV psr_mount="http://adc4110092.us.oracle.com/download/helidonArchive"
-ENV JAVA_HOME=/u01/jdk
+#ENV JAVA_HOME=/u01/jdk
 
 RUN mkdir -p /u01/jdk
 RUN mkdir -p /app
