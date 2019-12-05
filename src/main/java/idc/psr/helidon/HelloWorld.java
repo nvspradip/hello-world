@@ -111,7 +111,7 @@ public class HelloWorld implements Service {
         }
         if(map.containsKey("diag.jfr") && recID!=null )
              this.stopJFR(recID);
-        return text+"<br><br>"+"Hello World with Span version: "+Config.builder().build().get("version")  +" "+ host;
+        return text+"<br><br>"+"Hello World with Gradle/Maven/Jenkins Span version: "+Config.builder().build().get("version")  +" "+ host;
    }
 
     @Override
