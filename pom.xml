@@ -78,9 +78,15 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <addClasspath>true</addClasspath>
-                                <classpathPrefix>${libs.classpath.prefix}</classpathPrefix>
-                                <mainClass>${mainClass}</mainClass>
+                                <addClasspath>
+                                    true
+                                </addClasspath>
+                                <classpathPrefix>
+                                    ${libs.classpath.prefix}
+                                </classpathPrefix>
+                                <mainClass>
+                                    ${mainClass}
+                                </mainClass>
                             </manifest>
                         </archive>
                     </configuration>
