@@ -8,6 +8,7 @@ ENV psr_mount="http://adc4110092.us.oracle.com/download/helidonArchive"
 
 RUN mkdir -p /u01/jdk
 RUN mkdir -p /app
+RUN mkdir -p /test
 WORKDIR /app
 #COPY jdk1.8.0_40 /u01/jdk
 COPY libs /app/libs
