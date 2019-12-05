@@ -108,7 +108,7 @@ task buildMaven{
 	doLast{
 	println 'Executing maven package... ';
 	exec{
-	commandLine 'cmd','/c','mvn package';
+	commandLine 'cmd','/c','$MAVEN_HOME/bin/mvn package';
 	}
 	println "Maven Package Done .... ";
 	}
