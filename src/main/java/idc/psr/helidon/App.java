@@ -4,6 +4,9 @@ import io.helidon.config.Config;
 import io.helidon.config.ConfigSources;
 import io.helidon.config.ConfigValue;
 import io.helidon.config.spi.ConfigParser;
+import io.helidon.health.HealthSupport;
+import io.helidon.health.checks.HealthChecks;
+import io.helidon.media.jsonp.server.JsonSupport;
 import io.helidon.metrics.MetricsSupport;
 import io.helidon.microprofile.server.Server;
 import io.helidon.tracing.TracerBuilder;
@@ -26,6 +29,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+
 /**
  * Hello world!
  *
@@ -34,9 +40,33 @@ public class App
 {
     public static void main( String[] args )
     {
+        PSRHealthCheck psrHealthCheck=new PSRHealthCheck();
         WebServer webServer;
         try {
             
+            HealthCheck hc = () -> HealthCheckResponse
+                    .named("exampleHealthCheckLive")
+                    .up()
+                    .withData("time", System.currentTimeMillis())
+                    .build();
+            
+            
+            HealthCheck hc1 = () -> HealthCheckResponse
+                    .named("exampleAddReadiness")
+                    .up()
+                    .withData("readinessTime", System.currentTimeMillis())
+                    .build();
+
+            HealthSupport health = HealthSupport.builder()
+                .addLiveness(hc)
+                .addReadiness(hc1)
+                .addReadiness(HealthChecks.healthChecks() )
+                .addReadiness(psrHealthCheck)
+                .build();
+            
+            HealthSupport health1 = HealthSupport.builder()
+                .addReadiness(hc1)
+                .build();
             
       /*      ServerConfiguration.builder()
                                .tracer(TracerBuilder.create("my-application")                    
@@ -53,7 +83,7 @@ public class App
             System.out.println("Server started at: http://localhost:" + webServer.port()); 
 
             ServerConfiguration configuration = ServerConfiguration.builder()
-                                                                   .port(8080)
+                                                                   .port(8080)   //make it 8080 before deploying
                                                                    .build();
          //   final JsonBindingSupport jsonBindingSupport = JsonBindingSupport.create();
          
@@ -62,7 +92,12 @@ public class App
                                    //.register(JsonSupport.create())
                                    //.get("/sayhello", Handler.create(JsonObject.class, this::sayHello))
                              //      .trace(TracerBuilder.create("my-application").collectorUri(URI.create("http://127.0.0.1:14269")).build())            
+                                   
+                                   .register(health)
+                                   .register(AccessLogSupport.create(Config.builder().build().get("server.access-log")))
+                               //    .register(health1)
                                    .register("/pics",StaticContentSupport.create(Paths.get("D:\\Pics\\Jun_2018\\Samsung") ) ).any((req,res) -> res.send("port 8080") )
+                                   
                                    .build() ;
             WebServer webServer2 = WebServer.create(configuration,routing  );
             webServer2.start();
@@ -70,11 +105,16 @@ public class App
                                                                    .port(8081).workersCount(25)
                                                                    .build();
             
+        
             
+   //        health=HealthSupport.create();
             WebServer webserver3=WebServer.create(configuration3,
                                                   Routing.builder()
                                                          .register(AccessLogSupport.create(Config.builder().build().get("server.access-log")))
                                                          .register(MetricsSupport.create() )
+                                                         .register(JsonSupport.create())
+                                                         .register(health)
+                                                      //   .register(health1)
                                                          .register("/myService",new MyService())
                                                          .build()  );
             
@@ -85,7 +125,8 @@ public class App
                 //Server server = Server.create().start(); 
                 Server server = Server.builder().addResourceClass(HelloWorld.class).build().start();
             
-            System.out.println("http://localhost:" + server.port() + "/greet   host "+server.host() ); 
+            
+            System.out.println("*****************http://localhost:" + server.port() + "/hello   host "+server.host() ); 
             Config config=Config.builder().build();
             
           //  ConfigValue<Map<String, String>> asMap = config.asMap();
@@ -108,5 +149,12 @@ public class App
         }
 
 
+    }
+    
+    HealthCheckResponse exampleHealthCheck(){
+        return HealthCheckResponse
+            .named("exampleHealthCheck")
+            .up()
+            .build();
     }
 }

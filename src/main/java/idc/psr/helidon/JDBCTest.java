@@ -25,6 +25,9 @@ import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import oracle.ucp.jdbc.ValidConnection;
 
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+
 public class JDBCTest {
     public JDBCTest() {
         super();
@@ -53,12 +56,12 @@ public class JDBCTest {
         try{   
                PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
                 System.out.println("testing for every entry "+ pds.toString()+ "  "+ pds.UCP_DESCRIPTION );
-                //pds.setURL("jdbc:oracle:thin:@//slc09sxu.us.oracle.com:1521/IDM");  // (1) slcn10cn11.us.oracle.com:1530/SYS$BACKGROUND
-                    pds.setURL("jdbc:oracle:thin:@//slcn10cn11.us.oracle.com:1530/zgmc_dc1_gsi_f:POOLED");  //zgmc_dc1_gsi_f:POOLED
+                pds.setURL("jdbc:oracle:thin:@//slc09sxu.us.oracle.com:1521/IDM");  // (1) slcn10cn11.us.oracle.com:1530/SYS$BACKGROUND
+              //  pds.setURL("jdbc:oracle:thin:@//slcn10cn11.us.oracle.com:1530/zgmc_dc1_gsi_f:POOLED");  //zgmc_dc1_gsi_f:POOLED
                 pds.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource"); 
                 pds.setInitialPoolSize(1);
                 pds.setUser(user);
-                pds.setPassword("welcome123");
+                pds.setPassword("manager");
                 pds.setMinPoolSize(2);
                 pds.setMaxPoolSize(30);
                 pds.setMaxStatements(20);
@@ -114,9 +117,27 @@ public class JDBCTest {
     }
     void test_adf(ServerRequest request, ServerResponse response) {
         //init("test_adf");
-        init("spectra2");
+        String user="ocs_soainfra";
+        //        System.out.println("request params "+ request.queryParams().toMap().size()+ "   toString "+request.queryParams().toString() );
+        Map<String, List<String>> map = request.queryParams().toMap();
+        for(String key:map.keySet()){
+            if(key.equalsIgnoreCase("user")){
+                List<String> list = map.get(key);
+        //                System.out.println("List size "+list.size()+"  first value "+list.get(0));
+                if( list.get(0)!=null ){
+                    user=list.get(0);
+                    if(pdsMap.containsKey(user))
+                     pdsMap.remove(user);
+                    response.send("removed pool belonging to "+user);
+                    return;
+                }
+                break;
+            }
+                
+        }
         String sql="Select to_char(sysdate,'dd-mon-yyy hh24:mi:ss'),sys_context( 'userenv', 'session_user' ) from dual ";
-        String res = this.executeSQL(sql,"spectra2");
+        String res = this.executeSQL(sql,user);
+        init(user);
         if(res.length()==0)
             response.status(500).send("Exception faced");
         else
@@ -175,4 +196,26 @@ public class JDBCTest {
         return sb.toString();
 
     }
+    
+    public static HealthCheckResponseBuilder getStatus(){
+        HealthCheckResponseBuilder builder=HealthCheckResponse.named("UCPDatasource");
+        Set<String> keySet = pdsMap.keySet();
+        for(String key:keySet){
+            PoolDataSource dataSource = pdsMap.get(key);
+            Connection connection = null;
+            try{
+            connection=dataSource.getConnection();    
+            connection.isValid(30);
+            builder.up().withData(dataSource.getURL()+" "+dataSource.getUser(),"Success" );    
+            connection.close();
+            }catch(Exception e){
+                builder.down().withData(dataSource.getURL()+" "+dataSource.getUser()," Exception "+e.toString() );
+                break;
+            }
+        }
+        return builder;
+        
+    }
+        
+    
 }

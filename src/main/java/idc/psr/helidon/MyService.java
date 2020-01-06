@@ -267,6 +267,7 @@ public class MyService implements Service {
         String method = "CallWLS Method called by " + request.remoteAddress() + "  " + request.remotePort() + "<br>";
         JaegerSpanContext jSpan = (JaegerSpanContext) request.spanContext();
         String traceID = jSpan.getTraceId();
+        localSpan.setBaggageItem("CallWLSBaggage", "Test Baggage Item");
         
         String ecid_context="";
         
