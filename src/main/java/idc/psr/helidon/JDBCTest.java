@@ -56,12 +56,12 @@ public class JDBCTest {
         try{   
                PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
                 System.out.println("testing for every entry "+ pds.toString()+ "  "+ pds.UCP_DESCRIPTION );
-                pds.setURL("jdbc:oracle:thin:@//slc09sxu.us.oracle.com:1521/IDM");  // (1) slcn10cn11.us.oracle.com:1530/SYS$BACKGROUND
-              //  pds.setURL("jdbc:oracle:thin:@//slcn10cn11.us.oracle.com:1530/zgmc_dc1_gsi_f:POOLED");  //zgmc_dc1_gsi_f:POOLED
+             //   pds.setURL("jdbc:oracle:thin:@//slc09sxu.us.oracle.com:1521/IDM");  // (1) slcn10cn11.us.oracle.com:1530/SYS$BACKGROUND
+                pds.setURL("jdbc:oracle:thin:@//slcn10cn11.us.oracle.com:1521/zgmc_dc1_gsi_f:POOLED");  //zgmc_dc1_gsi_f:POOLED
                 pds.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource"); 
                 pds.setInitialPoolSize(1);
                 pds.setUser(user);
-                pds.setPassword("manager");
+                pds.setPassword("welcome123"); //manager
                 pds.setMinPoolSize(2);
                 pds.setMaxPoolSize(30);
                 pds.setMaxStatements(20);
